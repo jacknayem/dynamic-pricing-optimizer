@@ -3,3 +3,10 @@ Step 6: Deployment Pipeline
 1. Update the "Recipe" (requirements.txt)
 - In your terminal, run: pip freeze > requirements.txt
 2. Push to GitHub
+3. Connect to Streamlit Cloud
+- Go to share.streamlit.io and click "Sign up with GitHub".
+- Once logged in, click "New app".
+- Repository: Select dynamic-pricing-optimizer from the list.
+- Branch: main (or master).
+- Main file path: src/app.py.
+- Click "Deploy!".
