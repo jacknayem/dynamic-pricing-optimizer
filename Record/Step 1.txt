@@ -1,0 +1,26 @@
+======================================
+Step 1: Repo & Data Initialization
+======================================
+
+1. Create the Repository
+- Go to your GitHub and create a new Public repository named: dynamic-pricing-optimizer.
+- Check the box: "Add a README file".
+- Select .gitignore template: Python.
+- Click Create repository.
+
+2. Clone to your Local Machine
+- Open your terminal (Command Prompt or Terminal) and run:
+- git clone https://github.com/YOUR_USERNAME/dynamic-pricing-optimizer.git
+cd dynamic-pricing-optimizer
+
+3. Build the "Senior" Folder Structure Inside that folder, create these specific folders.
+ This structure tells a hiring manager you are organized.
+- data/ (for your dataset)
+- src/ (for your python scripts)
+- notebooks/ (for experimentation)
+- tests/ (for automated testing later)
+
+3. Download the Data (For me)
+- https://archive.ics.uci.edu/dataset/502/online+retail+ii
+- Click "Download"
+- Save the file inside your new data/ folder.

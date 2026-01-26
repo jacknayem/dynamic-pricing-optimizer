@@ -1,0 +1,65 @@
+Step 3: Feature Engineering (The "Business Logic").
+============================================
+
+Step 3: Transform Data (Transactions <---> Customer Features)
+
+1. Create the Notebook
+-- In VS Code, go to the notebooks/ folder.
+-- Right-click <--> New File.
+-- Name it: customer_features.ipynb
+
+2. Imports & Connection
+----------------------Code-------------------------
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+import os
+
+# Connect to the SQLite Database
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
+DB_PATH = os.path.join(BASE_DIR, 'data', 'retail.db')
+engine = create_engine(f'sqlite:///{DB_PATH}')
+
+# Load data using SQL (only grabbing what we need)
+query = "SELECT * FROM transactions"
+df = pd.read_sql(query, engine)
+
+print(f"Loaded {df.shape[0]} rows.")
+
+----------------Data Cleaning--------------------------
+# 1. Drop rows without Customer ID (we can't track them)
+df = df.dropna(subset=['Customer ID'])
+
+# 2. Make sure Customer ID is a string (fixing the type again after SQL load)
+df['Customer ID'] = df['Customer ID'].astype(str)
+
+# 3. Remove negative quantities (Returns/Cancellations)
+# In business terms, we only care about *sales* for now.
+df = df[df['Quantity'] > 0]
+
+# 4. Create a 'TotalSpend' column
+df['TotalSpend'] = df['Quantity'] * df['Price']
+
+print(f"Cleaned Data: {df.shape[0]} rows.")
+df.head()
+-------------------The RFM Calculation------------------------------
+# Set a reference date (the day after the last data point in the dataset)
+# In a real live system, this would be 'today'.
+snapshot_date = df['InvoiceDate'].max() + pd.Timedelta(days=1)
+
+# Aggregate data by Customer ID
+customers = df.groupby(['Customer ID']).agg({
+    'InvoiceDate': lambda x: (snapshot_date - x.max()).days, # Recency
+    'Invoice': 'count',                                      # Frequency
+    'TotalSpend': 'sum'                                      # Monetary
+})
+
+# Rename columns to be clear
+customers.rename(columns={
+    'InvoiceDate': 'Recency',
+    'Invoice': 'Frequency',
+    'TotalSpend': 'Monetary'
+}, inplace=True)
+
+print(f"We have profiles for {customers.shape[0]} unique customers.")
+customers.head()

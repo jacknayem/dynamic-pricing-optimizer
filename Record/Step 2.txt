@@ -1,0 +1,56 @@
+Step 2: The Setup & Ingestion Pipeline
+============================================
+
+1. Create the Virtual Environment Open your terminal inside the dynamic-pricing-optimizer folder and run:
+- Windows:
+	1. python -m venv venv
+	2. venv\Scripts\activate
+- Mac/Linux:
+	1. python3 -m venv venv
+	2. source venv/bin/activate
+2. Install Dependencies We need pandas for data manipulation, openpyxl to read Excel files, and sqlalchemy to talk to databases.
+- Run this command:
+	pip install pandas openpyxl sqlalchemy jupyter
+- Freeze the requirements: Now, create the file that tells others how to run your code.
+	pip freeze > requirements.txt
+
+3. Write the "Ingestion Script" (Excel -> SQL) This is your first piece of "Production Code." We are moving data from a raw file into a queryable database.
+
+- Create a new file: src/ingest_data.py.
+
+- Paste this code into it:
+---------------------Code-----------------------
+
+import pandas as pd
+from sqlalchemy import create_engine
+import os
+
+# 1. Define paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, 'data', 'raw_data.xlsx')
+DB_PATH = os.path.join(BASE_DIR, 'data', 'retail.db')
+
+def ingest_data():
+    print("⏳ Loading Excel file... (This might take a moment)")
+    
+    # Read the Excel file (Sheet1)
+    # dtype={'Customer ID': str} prevents ID from becoming a float
+    df = pd.read_excel(DATA_PATH, sheet_name='Sheet1', dtype={'Customer ID': str})
+    
+    print(f"✅ Data Loaded: {df.shape[0]} rows found.")
+    
+    # Create a local SQLite database engine
+    engine = create_engine(f'sqlite:///{DB_PATH}')
+    
+    # Write data to SQL
+    print("⏳ Writing to SQLite database...")
+    df.to_sql('transactions', engine, index=False, if_exists='replace')
+    
+    print("🎉 Success! Data is now inside 'data/retail.db' in table 'transactions'.")
+
+if __name__ == "__main__":
+    ingest_data()
+
+4. Run It
+
+- In your terminal, run: python src/ingest_data.py

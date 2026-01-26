@@ -1,0 +1,79 @@
+Step 5: The "Deployment"
+==========================================================
+1. Create the App File
+-In VS Code, create a new file: src/app.py
+
+2. --------------------Code---------------------------
+
+import streamlit as st
+import pandas as pd
+import pickle
+import numpy as np
+import os
+
+# 1. Setup Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, 'data', 'model_kmeans.pkl')
+SCALER_PATH = os.path.join(BASE_DIR, 'data', 'scaler.pkl')
+
+# 2. Load the Brains (Model + Scaler)
+@st.cache_resource
+def load_models():
+    with open(MODEL_PATH, 'rb') as f:
+        model = pickle.load(f)
+    with open(SCALER_PATH, 'rb') as f:
+        scaler = pickle.load(f)
+    return model, scaler
+
+model, scaler = load_models()
+
+# 3. The Web Interface
+st.title("💰 AI Discount Optimizer")
+st.write("Enter customer details to see if they qualify for a retention coupon.")
+
+# 4. User Inputs
+col1, col2, col3 = st.columns(3)
+with col1:
+    recency = st.number_input("Days Since Last Purchase", min_value=0, value=200)
+with col2:
+    frequency = st.number_input("Total Transactions", min_value=1, value=5)
+with col3:
+    monetary = st.number_input("Total Spend ($)", min_value=0.0, value=500.0)
+
+# 5. The "Predict" Button
+if st.button("Run Model"):
+    # Prepare the data exactly how the model expects it
+    input_data = pd.DataFrame({
+        'Recency': [recency],
+        'Frequency': [frequency],
+        'Monetary': [monetary]
+    })
+    
+    # Scale the data (transforming inputs to "model language")
+    input_scaled = scaler.transform(input_data)
+    
+    # Predict
+    cluster = model.predict(input_scaled)[0]
+    
+    # 6. Business Logic (Based on YOUR specific results)
+    # Cluster 0 was the "High Recency" (At Risk) group in your screenshot
+    if cluster == 0:
+        st.error(f"Customer belongs to Cluster {cluster} (At Risk).")
+        st.success("✅ RECOMMENDATION: Send 15% Discount Coupon!")
+    elif cluster == 2:
+        st.balloons()
+        st.info(f"Customer belongs to Cluster {cluster} (VIP).")
+        st.warning("⛔ RECOMMENDATION: No Discount. Upsell Premium items.")
+    else:
+        st.info(f"Customer belongs to Cluster {cluster} (Regular).")
+        st.warning("⛔ RECOMMENDATION: No Discount needed.")
+----------------------------End Code---------------------------------
+
+3. Run the App
+- Open your terminal (make sure your virtual environment (venv) is active).
+- Run this command:
+	streamlit run src/app.py
+4. The "Magic" Moment
+- Your browser should automatically open to a local website (usually http://localhost:8501)
+- Test it: Enter Recency: 300 (Simulating an old customer). Click "Run Model". It should say "Send 15% Discount".
+- Enter Recency: 3 and Spend: 10000. It should say "VIP"
