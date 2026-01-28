@@ -1,0 +1,97 @@
+Step 7: Unit Test for this project
+==========================================================
+Step 1: Extract the Logic (Refactoring)
+----------------------------------------
+1. Create a new file: src/utils.py
+
+2. ----------code---------: This function takes a raw DataFrame and returns a clean one.
+It removes missing IDs and negative quantities (returns).
+
+import pandas as pd
+
+def clean_data(df):
+    """
+    Cleans the raw transaction data:
+    1. Removes rows with missing Customer ID.
+    2. Converts Customer ID to string.
+    3. Removes negative quantities (Returns).
+    4. Calculates TotalSpend.
+    """
+    # Create a copy so we don't mess up the original data
+    df = df.copy()
+    
+    # 1. Drop missing IDs
+    df = df.dropna(subset=['Customer ID'])
+    
+    # 2. Ensure string type
+    df['Customer ID'] = df['Customer ID'].astype(str)
+    
+    # 3. Filter only positive quantities (Sales)
+    df = df[df['Quantity'] > 0]
+    
+    # 4. Calculate Total Spend
+    df['TotalSpend'] = df['Quantity'] * df['Price']
+    
+    return df
+Step 2: Write the Test
+----------------------------------------
+- Install the Test Tool: Run this in your terminal:
+pip install pytest
+- Create a new file: tests/test_utils.py
+- -------------code-----------------------
+import pandas as pd
+import sys
+import os
+
+# Add the 'src' folder to the system path so we can import 'utils'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+from utils import clean_data
+
+def test_clean_data_removes_negative_quantity():
+    # 1. ARRANGE (Create fake dirty data)
+    # We create a dataframe with 2 rows: one "Good" sale, one "Bad" return (-5)
+    raw_data = pd.DataFrame({
+        'Customer ID': ['123', '456'],
+        'Quantity': [10, -5],  # -5 should be removed
+        'Price': [5.0, 5.0]
+    })
+    
+    # 2. ACT (Run our function)
+    cleaned_df = clean_data(raw_data)
+    
+    # 3. ASSERT (Check if it worked)
+    
+    # Check A: Did it remove the negative row?
+    assert len(cleaned_df) == 1, "Failed to remove the negative quantity row!"
+    
+    # Check B: Is the remaining row the correct one? (Customer 123)
+    assert cleaned_df.iloc[0]['Customer ID'] == '123', "Wrong row remained!"
+    
+    # Check C: Did it calculate TotalSpend correctly? (10 * 5.0 = 50.0)
+    assert cleaned_df.iloc[0]['TotalSpend'] == 50.0, "TotalSpend calculation is wrong!"
+
+def test_clean_data_removes_missing_id():
+    # 1. ARRANGE
+    raw_data = pd.DataFrame({
+        'Customer ID': ['123', None], # None should be removed
+        'Quantity': [10, 10],
+        'Price': [5.0, 5.0]
+    })
+    
+    # 2. ACT
+    cleaned_df = clean_data(raw_data)
+    
+    # 3. ASSERT
+    assert len(cleaned_df) == 1, "Failed to drop missing Customer ID"
+
+Step 3: Run the Test
+-----------------------------
+- In your terminal, simply type:
+	pytest
+- Press Enter.
+What to look for:
+
+Green Text: You should see 2 passed in green. This means your logic is bulletproof.
+
+Red Text: If you see red, it means the test failed (maybe a typo in the code).
