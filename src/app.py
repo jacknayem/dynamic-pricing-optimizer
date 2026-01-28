@@ -59,3 +59,6 @@ with tab1:
             st.info(f"Regular (Cluster {cluster}) -> Standard Marketing")
 with tab2:
     st.header("Upload Raw Sales Data")
+    st.write("Upload a raw Excel file to automatically calculate RFM and segments for ALL customers.")
+    uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
+    

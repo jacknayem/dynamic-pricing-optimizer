@@ -20,6 +20,8 @@ def clean_data(df):
     # Filter only positive quantities
     df = df[df['Quantity'] > 0]
 
+    # Drop Duplicates
+    df = df.drop_duplicates()
     # Calculate Total Spend
     df['TotalSpend'] = df['Quantity'] * df['Price']
     return df
