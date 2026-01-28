@@ -38,7 +38,7 @@ with tab1:
     with col2:
         frequency = st.number_input("Total Transactions", min_value=1, value=5)
     with col3:
-        monetary = st.number_input("Total Spend ($)", max_value=0.0, value=500.0)
+        monetary = st.number_input("Total Spend ($)", min_value=0.0, value=500.0)
 
     if st.button("Predict Single User"):
         input_data = pd.DataFrame({
@@ -51,11 +51,11 @@ with tab1:
         cluster = model.predict(input_scaled)[0]
 
         if cluster == 0:
-            st.error(f"At-Risk (Cluster {Cluster}) -> Send 15% Coupon")
+            st.error(f"At-Risk (Cluster {cluster}) -> Send 15% Coupon")
         elif cluster == 2:
             st.balloons()
-            st.success(f"VIP (Cluster {Cluster}) -> No Discount Needed")
+            st.success(f"VIP (Cluster {cluster}) -> No Discount Needed")
         else:
-            st.info(f"Regular (Cluster {Cluster}) -> Standard Marketing")
+            st.info(f"Regular (Cluster {cluster}) -> Standard Marketing")
 with tab2:
     st.header("Upload Raw Sales Data")
