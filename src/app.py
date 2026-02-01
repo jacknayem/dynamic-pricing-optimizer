@@ -64,7 +64,7 @@ with tab2:
     # --- DEMO FILE DOWNLOADER ---
     DEMO_FILE_PATH = os.path.join(BASE_DIR, 'data', 'test_data.xlsx')
     if os.path.exists(DEMO_FILE_PATH):
-        with open(DEMO_FILE_PATH) as file:
+        with open(DEMO_FILE_PATH, "rb") as file:
             btn = st.download_button(
                 label="Download Demo Excel File",
                 data=file,
