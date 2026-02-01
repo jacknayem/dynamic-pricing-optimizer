@@ -60,6 +60,21 @@ with tab1:
 with tab2:
     st.header("Upload Raw Sales Data")
     st.write("Upload a raw Excel file to automatically calculate RFM and segments for ALL customers.")
+
+    # --- DEMO FILE DOWNLOADER ---
+    DEMO_FILE_PATH = os.path.join(BASE_DIR, 'data', 'test_data.xlsx')
+    if os.path.exists(DEMO_FILE_PATH):
+        with open(DEMO_FILE_PATH) as file:
+            btn = st.download_button(
+                label="Download Demo Excel File",
+                data=file,
+                file_name= "test_data.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+    else:
+        st.warning(f"Demo file not found at: {DEMO_FILE_PATH}")
+        st.write("Please commit a file named 'test_data.xlsx' to your 'data' folder in GitHub.")
+    st.markdown("---")
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
     
     if uploaded_file and st.button("Process Batch"):
