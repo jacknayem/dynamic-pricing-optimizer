@@ -62,3 +62,42 @@ with tab2:
     st.write("Upload a raw Excel file to automatically calculate RFM and segments for ALL customers.")
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
     
+    if uploaded_file and st.button("Process Batch"):
+        with st.spinner("Processing Thousands of Rows..."):
+            # Read and Clean
+            df_raw = pd.read_excel(uploaded_file, sheet_name='Year 2009-2010', dtype={'Customer ID':str})
+            df_clean = clean_data(df_raw)
+
+            # Calculate RFM for every Customer automatically
+            snapshot_date = df_clean['InvoiceDate'].max() + pd.Timedelta(days=1)
+
+            rfm_table = df_clean.groupby('Customer ID').agg({
+                'InvoiceDate': lambda x: (snapshot_date - x.max()).days,
+                'Invoice': 'count',
+                'TotalSpend': 'sum'
+            })
+
+            rfm_table.rename(columns={'InvoiceDate': 'Recency', 'Invoice': 'Frequency', 'TotalSpend': 'Monetary'}, inplace=True)
+
+            rfm_scaled = scaler.transform(rfm_table)
+            rfm_table['Cluster'] = model.predict(rfm_scaled)
+            
+            # 4. Add Business Logic Column
+            def get_action():
+                if cluster == 0: return "Send 15% Coupon"
+                elif cluster == 2: return "Upsell (VIP)"
+                else: return "Standard"
+            rfm_table['Recommendation'] = rfm_table['Cluster'].apply(get_action)
+
+            # 5. Show Results
+            st.success(f"Processed {len(rfm_table)} Customers!")
+            st.dataframe(rfm_table.style.applymap(lambda x: 'background-color: #ffcccc' if x == 'Send 15% Coupon' else '', subset=['Recommendation']))
+
+            # 6. Download Button
+            csv = rfm_table.to_csv().encode('utf-8')
+            st.download_button(
+                label= "Download Results CSV",
+                data = csv,
+                file_name= 'customer_segmentation_results.csv',
+                mime= 'text/csv'
+            )
