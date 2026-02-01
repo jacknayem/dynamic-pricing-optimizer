@@ -4,7 +4,6 @@ Step 5: The "Deployment"
 -In VS Code, create a new file: src/app.py
 
 2. --------------------Code---------------------------
-
 import streamlit as st
 import pandas as pd
 import pickle
@@ -32,6 +31,13 @@ model, scaler = load_model()
 
 #User Inputs
 st.title("AI Discount Optimizer")
+
+st.write("### Created by Abu Nayem")
+st.markdown("""
+    <a href="https://github.com/jacknayem" target="_blank">GitHub</a> | 
+    <a href="https://www.linkedin.com/in/jacknayem/" target="_blank">LinkedIn</a> | 
+    <a href="https://jacknayem.medium.com/" target="_blank">Medium</a>
+    """, unsafe_allow_html=True)
 # --- CREATE TABS FOR DIFFERENT MODES ---
 tab1, tab2 = st.tabs(["Single Simulation", "Batch Processing (Real Data)"])
 # =========================================
@@ -67,6 +73,21 @@ with tab1:
 with tab2:
     st.header("Upload Raw Sales Data")
     st.write("Upload a raw Excel file to automatically calculate RFM and segments for ALL customers.")
+
+    # --- DEMO FILE DOWNLOADER ---
+    DEMO_FILE_PATH = os.path.join(BASE_DIR, 'data', 'test_data.xlsx')
+    if os.path.exists(DEMO_FILE_PATH):
+        with open(DEMO_FILE_PATH, "rb") as file:
+            btn = st.download_button(
+                label="Download Demo Excel File",
+                data=file,
+                file_name= "test_data.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+    else:
+        st.warning(f"Demo file not found at: {DEMO_FILE_PATH}")
+        st.write("Please commit a file named 'test_data.xlsx' to your 'data' folder in GitHub.")
+    st.markdown("---")
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
     
     if uploaded_file and st.button("Process Batch"):
@@ -109,6 +130,7 @@ with tab2:
                 file_name= 'customer_segmentation_results.csv',
                 mime= 'text/csv'
             )
+
 
 ----------------------------End Code---------------------------------
 
