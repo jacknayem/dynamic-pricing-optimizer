@@ -25,12 +25,9 @@ model, scaler = load_model()
 
 #User Inputs
 st.title("AI Discount Optimizer")
-
-st.write("### Created by Abu Nayem")
 st.markdown("""
-    <a href="https://github.com/jacknayem" target="_blank">GitHub</a> | 
-    <a href="https://www.linkedin.com/in/jacknayem/" target="_blank">LinkedIn</a> | 
-    <a href="https://jacknayem.medium.com/" target="_blank">Medium</a>
+    <a href="https://github.com/jacknayem/dynamic-pricing-optimizer" target="_blank">Sourch Code</a> | 
+    <a href="https://jacknayem.medium.com/my-journey-building-a-production-ready-machine-learning-app-with-unit-tests-c67d94ca8025?postPublishedType=initial" target="_blank">Project Article</a>
     """, unsafe_allow_html=True)
 # --- CREATE TABS FOR DIFFERENT MODES ---
 tab1, tab2 = st.tabs(["Single Simulation", "Batch Processing (Real Data)"])
