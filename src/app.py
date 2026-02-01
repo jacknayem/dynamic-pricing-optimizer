@@ -83,10 +83,11 @@ with tab2:
             rfm_table['Cluster'] = model.predict(rfm_scaled)
             
             # 4. Add Business Logic Column
-            def get_action():
+            def get_action(cluster):
                 if cluster == 0: return "Send 15% Coupon"
                 elif cluster == 2: return "Upsell (VIP)"
                 else: return "Standard"
+
             rfm_table['Recommendation'] = rfm_table['Cluster'].apply(get_action)
 
             # 5. Show Results
